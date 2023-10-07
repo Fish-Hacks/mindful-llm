@@ -2,6 +2,6 @@
     {
         "date": "<date>",
         "emotion": "<emotion>",
-        "description": "<description>"
+        "description": "<description if any>"
     }
 ]
