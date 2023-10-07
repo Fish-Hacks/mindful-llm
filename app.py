@@ -72,14 +72,14 @@ def home():
     return 'Welcome to Jimmy but no Jimmy (Fish).'
 
 
-@APP.route('/chat/<identifier>', method=['POST'])
+@APP.route('/chat/<identifier>', methods=['POST'])
 def post_chat(identifier):
     data = request.json
 
-    return Chat(LLM, identifier, data)
+    return Chat(LLM, identifier, data['message'])
 
 
-@APP.route('/summary', method=['POST'])
+@APP.route('/summary', methods=['POST'])
 def post_summary():
     data = request.json
 
