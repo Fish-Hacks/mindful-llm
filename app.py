@@ -1,6 +1,8 @@
 from time import time
-from flask import Flask
+from flask import Flask, request
 from llama_cpp import Llama
+
+from chat import Chat, initChat
 
 # region Local Scope Variable
 MODEL = 'models/llama-2-7b-chat.Q5_K_M.gguf'
@@ -20,6 +22,8 @@ INSTRUCTION = '''
 
 LLM = Llama(MODEL)
 APP = Flask(__name__)
+
+initChat()  # TODO: DO WE NEED THIS
 # endregion
 
 
@@ -60,11 +64,23 @@ def summarize(json, **kwargs):
         The actual behavior and the returned value would depend on the LLM function and the INSTRUCTION value.
         The function execution time will also be printed due to the @timeit decorator.
     '''
-    return LLM(f'{INSTRUCTION} {json}', **kwargs)
+    return LLM(f'{INSTRUCTION} {json}', max_tokens=4096, **kwargs)
 
 
-output = summarize('Q: I am feeling a bit down. A: ', stop=['Q:', '\n'])
-print(output)
 @APP.route('/')
 def home():
     return 'Welcome to Jimmy but no Jimmy (Fish).'
+
+
+@APP.route('/chat/<identifier>', method=['POST'])
+def post_chat(identifier):
+    data = request.json
+
+    return Chat(LLM, identifier, data)
+
+
+@APP.route('/summary', method=['POST'])
+def post_summary():
+    data = request.json
+
+    return summarize(data)['choices'][0]['text']
