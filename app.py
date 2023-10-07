@@ -19,6 +19,7 @@ INSTRUCTION = '''
 '''
 
 LLM = Llama(MODEL)
+APP = Flask(__name__)
 # endregion
 
 
@@ -64,11 +65,6 @@ def summarize(json, **kwargs):
 
 output = summarize('Q: I am feeling a bit down. A: ', stop=['Q:', '\n'])
 print(output)
-
-
-# app = Flask(__name__)
-
-
-# @app.route('/')
-# def home():
-#     return 'Welcome to Jimmy but no Jimmy (Fish).'
+@APP.route('/')
+def home():
+    return 'Welcome to Jimmy but no Jimmy (Fish).'
