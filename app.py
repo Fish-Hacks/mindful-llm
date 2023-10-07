@@ -20,7 +20,7 @@ INSTRUCTION = '''
     <</SYS>> [/INST]
 '''
 
-LLM = Llama(MODEL)
+LLM = Llama(MODEL, n_ctx=5120, n_gpu_layers=-1, main_gpu=0, verbose=True)
 APP = Flask(__name__)
 
 initChat()  # TODO: DO WE NEED THIS
@@ -64,7 +64,7 @@ def summarize(json, **kwargs):
         The actual behavior and the returned value would depend on the LLM function and the INSTRUCTION value.
         The function execution time will also be printed due to the @timeit decorator.
     '''
-    return LLM(f'{INSTRUCTION} {json}', max_tokens=4096, **kwargs)
+    return LLM(f'{INSTRUCTION} {json}', **kwargs)
 
 
 @APP.route('/')
