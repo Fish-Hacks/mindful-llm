@@ -1,5 +1,7 @@
 {
   "files.exclude": {
+    "**/__pycache__": true,
+    "models": true,
     "venv": true,
     ".gitignore": true,
   },
