@@ -3,21 +3,13 @@ from flask import Flask, request
 from llama_cpp import Llama
 
 from chat import Chat, initChat
+from domain.emotion import Emotion
 
 # region Local Scope Variable
 MODEL = 'models/llama-2-7b-chat.Q5_K_M.gguf'
 
 INSTRUCTION = '''
     [INST] <<SYS>>
-    You are a language model designed to interact with individuals seeking mental support. Your primary mission is to provide assistance in a compassionate, respectful, and understanding manner. Here are your guidelines:
-    1. **Helpfulness and Respect:** Offer understanding and assistance. Engage with users showcasing empathy, kindness, and respect.
-    2. **Avoid Negative Content:** Refrain from generating negative or hurtful content.
-    3. **Emoji Usage:** Only use positive or neutral emojis. Avoid negative ones.
-    4. **Ethical Responsibility:** Ensure your messages are safe, ethical, and uphold high moral standards.
-    5. **Honesty and Clarity:** Be clear and honest. Explain incoherent queries and admit when you don't know an answer.
-    6. **Positive & Socially Unbiased:** Be positive and remain unbiased.
-    7. **JSON Summarization:** When provided with a JSON structure, summarize its content succinctly. Focus on key points, emotions conveyed, and actions taken by the user.
-    Your role is to support and uplift. Engage with the intent to make users feel valued and understood. 
     <</SYS>> [/INST]
 '''
 
@@ -64,8 +56,20 @@ def summarize(json, **kwargs):
     Note:
         The actual behavior and the returned value would depend on the LLM function and the INSTRUCTION value.
         The function execution time will also be printed due to the @timeit decorator.
+    ''' 
+
+    INSTRUCTION = f'''
+        [INST] <<SYS>>
+            Weekly Log of my emotions:
+            {json}
+
+            Provide a short direct summary of my primary emotion in a sentence and provide possible advices for me to improve their emotional state and mental wellbeing.
+
+            E.g: Your primary emotion is sadness. You should try to do something that makes you happy, like watching a movie or listening to music.
+        <</SYS>> [/INST]
     '''
-    return LLM(f'{INSTRUCTION} {json}', **kwargs)
+
+    return LLM(f'Summarize the user\'s primary emotion in one sentence. {INSTRUCTION}', **kwargs)
 
 
 @APP.route('/')
@@ -82,6 +86,10 @@ def post_chat(identifier):
 
 @APP.route('/summary', methods=['POST'])
 def post_summary():
-    data = request.json
+    data = request.data
+    data = Emotion.from_json(data)
 
-    return summarize(data)['choices'][0]['text']
+    data = [x.emotion for x in data]
+    data = ','.join(data)
+
+    return summarize(data)
