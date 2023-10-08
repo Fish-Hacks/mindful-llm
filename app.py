@@ -60,16 +60,17 @@ def summarize(json, **kwargs):
 
     INSTRUCTION = f'''
         [INST] <<SYS>>
-            Weekly Log of my emotions:
+            Monthly journal of my emotional state and mental wellbeing:
             {json}
 
-            Provide a short direct summary of my primary emotion in a sentence and provide possible advices for me to improve their emotional state and mental wellbeing.
-
-            E.g: Your primary emotion is sadness. You should try to do something that makes you happy, like watching a movie or listening to music.
+            # RULES:
+            - ONLY provide short and concise advices for me to improve my emotional state and mental wellbeing.
+            - SHORT AND CONCISE. NO LONG PARAGRAPHS.
+            - MAXIMUM 3 ADVICES.
         <</SYS>> [/INST]
     '''
 
-    return LLM(f'Summarize the user\'s primary emotion in one sentence. {INSTRUCTION}', **kwargs)
+    return LLM(f'{INSTRUCTION}', max_tokens=0, **kwargs)
 
 
 @APP.route('/')
@@ -92,4 +93,7 @@ def post_summary():
     data = [x.emotion for x in data]
     data = ','.join(data)
 
-    return summarize(data)
+    result = summarize(data)
+    print(result)
+
+    return '.'.join(result['choices'][0]['text'].split('.')[1:])
